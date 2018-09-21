@@ -26,7 +26,7 @@ def _get_resp_headers(resp):
 
 
 @api.route('/trackings', methods=['get', 'post'])
-@api.route('/trackings/<id>', methods=['get'])
+@api.route('/trackings/<id>', methods=['get', 'patch'])
 def transmit(id=None):
 
     base_url = app_host + '/trackings' + ('' if not id else '/{}'.format(id))
@@ -59,4 +59,9 @@ def transmit(id=None):
 
         return Response(resp, status=resp.status_code, headers=resp_headers)
 
+    elif request.method.lower() == 'patch':
+        resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
 
+        resp_headers = _get_resp_headers(resp)
+
+        return Response(resp, status=resp.status_code, headers=resp_headers)
