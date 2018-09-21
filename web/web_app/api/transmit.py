@@ -26,14 +26,14 @@ def _get_resp_headers(resp):
 
 
 @api.route('/trackings', methods=['get', 'post'])
-def transmit(sub_url=None):
+@api.route('/trackings/<id>', methods=['get'])
+def transmit(id=None):
 
-    base_url = app_host + '/trackings'
+    base_url = app_host + '/trackings' + ('' if not id else '/{}'.format(id))
 
     get_token = app_token_dict.get(request.args.get('token', None), None)
     if not get_token:
         return _.error_respond(msg='Token not right', http_code=403)
-
 
     if [k+'='+v for k, v in request.args.items() if k != 'token']:
         url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
