@@ -19,10 +19,10 @@ class DevelopmentConfig(Config):
     CSRF_ENABLED = True
     # Backend Name
     BACKEND_NAME = 'transmit_request_dev'
-    TRANSMIT_HOST = 'http://test-api.truckerpath.com'
-    AUTHENTICATION_TOKEN_DICT = '{"xxx": "r:e4664b676496485698989de72b822e36"}'
-    CLIENT = 'web_api/1.0.0'
-    INSTALLATION_ID = '4f861616-ea9f-44a1-860d-c533271d3b7f'
+    TRANSMIT_HOST = 'xxx'
+    AUTHENTICATION_TOKEN_DICT = '{"xxx": "xxx"}'
+    CLIENT = 'xxx'
+    INSTALLATION_ID = 'xxx'
 
 
 RUN_ENV = os.environ.get('RUN_ENV') or 'dev'
