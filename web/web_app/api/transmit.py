@@ -12,6 +12,9 @@ app_token_dict = json.loads(app.config.get('AUTHENTICATION_TOKEN_DICT'))
 app_host = app.config.get('TRANSMIT_HOST')
 app_host = app_host[:-1] if app_host.endswith('/') else app_host
 
+client = app.config.get('CLIENT')
+Installation_ID = app.config.get('INSTALLATION_ID')
+
 
 def _get_resp_headers(resp):
     resp_headers = []
@@ -40,7 +43,7 @@ def transmit(id=None):
         url = base_url
 
     headers = dict(request.headers)
-    headers.update({'Host': app_host, 'x-auth-token': get_token})
+    headers.update({'Host': app_host, 'x-auth-token': get_token, 'client': client, 'Installation-ID': Installation_ID})
     headers.pop('Host')
 
 
@@ -89,7 +92,7 @@ def location_events(id=None):
         url = base_url
 
     headers = dict(request.headers)
-    headers.update({'Host': app_host, 'x-auth-token': get_token})
+    headers.update({'Host': app_host, 'x-auth-token': get_token, 'client': client, 'Installation-ID': Installation_ID})
     headers.pop('Host')
 
 
