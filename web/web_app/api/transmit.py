@@ -72,3 +72,30 @@ def transmit(id=None):
 
         return Response(resp, status=resp.status_code, headers=resp_headers)
 
+
+
+@api.route('/location_events', methods=['post'])
+def location_events(id=None):
+
+    base_url = app_host + '/location_events' + ('' if not id else '/{}'.format(id))
+
+    get_token = app_token_dict.get(request.args.get('token', None), None)
+    if not get_token:
+        return _.error_respond(msg='Token not right', http_code=403)
+
+    if [k+'='+v for k, v in request.args.items() if k != 'token']:
+        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
+    else:
+        url = base_url
+
+    headers = dict(request.headers)
+    headers.update({'Host': app_host, 'x-auth-token': get_token})
+    headers.pop('Host')
+
+
+    if request.method.lower() == 'post':
+        resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
+
+        resp_headers = _get_resp_headers(resp)
+
+        return Response(resp, status=resp.status_code, headers=resp_headers)
