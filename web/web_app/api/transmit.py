@@ -12,8 +12,6 @@ app_token_dict = json.loads(app.config.get('AUTHENTICATION_TOKEN_DICT'))
 app_host = app.config.get('TRANSMIT_HOST')
 app_host = app_host[:-1] if app_host.endswith('/') else app_host
 
-client = app.config.get('CLIENT')
-Installation_ID = app.config.get('INSTALLATION_ID')
 
 
 def _get_resp_headers(resp):
@@ -36,6 +34,8 @@ def transmit(id=None):
     get_token = app_token_dict.get(request.args.get('token', None), None)
     if not get_token:
         return _.error_respond(msg='Token not right', http_code=403)
+    token = get_token.split('||')[0]
+    broker_id = int(get_token.split('||')[1])
 
     if [k+'='+v for k, v in request.args.items() if k != 'token']:
         url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
@@ -43,7 +43,7 @@ def transmit(id=None):
         url = base_url
 
     headers = dict(request.headers)
-    headers.update({'Host': app_host, 'x-auth-token': get_token, 'client': client, 'Installation-ID': Installation_ID})
+    headers.update({'Host': app_host, 'x-auth-token': token})
     headers.pop('Host')
 
 
@@ -55,7 +55,9 @@ def transmit(id=None):
         return Response(resp, status=resp.status_code, headers=resp_headers)
 
     elif request.method.lower() == 'post':
-        resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
+        json_data = request.get_json()
+        json_data.update({'broker_id': broker_id})
+        resp = getattr(requests, request.method.lower())(url=url, json=json_data, headers=headers)
 
         resp_headers = _get_resp_headers(resp)
 
@@ -85,6 +87,7 @@ def location_events(id=None):
     get_token = app_token_dict.get(request.args.get('token', None), None)
     if not get_token:
         return _.error_respond(msg='Token not right', http_code=403)
+    token = get_token.split('||')[0]
 
     if [k+'='+v for k, v in request.args.items() if k != 'token']:
         url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
@@ -92,7 +95,7 @@ def location_events(id=None):
         url = base_url
 
     headers = dict(request.headers)
-    headers.update({'Host': app_host, 'x-auth-token': get_token, 'client': client, 'Installation-ID': Installation_ID})
+    headers.update({'Host': app_host, 'x-auth-token': token})
     headers.pop('Host')
 
 
