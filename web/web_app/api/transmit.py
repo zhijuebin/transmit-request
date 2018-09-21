@@ -25,7 +25,7 @@ def _get_resp_headers(resp):
 
 
 
-@api.route('/trackings', methods=['get'])
+@api.route('/trackings', methods=['get', 'post'])
 def transmit(sub_url=None):
 
     base_url = app_host + '/trackings'
@@ -43,12 +43,20 @@ def transmit(sub_url=None):
     headers = dict(request.headers)
     headers.update({'Host': app_host, 'x-auth-token': get_token})
     headers.pop('Host')
-    resp = getattr(requests, request.method.lower())(url=url, headers=headers)
-
-    resp_headers = _get_resp_headers(resp)
-
-    return Response(resp, status=resp.status_code, headers=resp_headers)
 
 
+    if request.method.lower() == 'get':
+        resp = getattr(requests, request.method.lower())(url=url, headers=headers)
+
+        resp_headers = _get_resp_headers(resp)
+
+        return Response(resp, status=resp.status_code, headers=resp_headers)
+
+    elif request.method.lower() == 'post':
+        resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
+
+        resp_headers = _get_resp_headers(resp)
+
+        return Response(resp, status=resp.status_code, headers=resp_headers)
 
 
