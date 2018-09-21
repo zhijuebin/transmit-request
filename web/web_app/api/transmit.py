@@ -1,5 +1,4 @@
 # coding=utf-8
-from flask import jsonify
 import json
 from web_app import app
 from web_app.api import api
@@ -26,7 +25,7 @@ def _get_resp_headers(resp):
 
 
 @api.route('/trackings', methods=['get', 'post'])
-@api.route('/trackings/<id>', methods=['get', 'patch'])
+@api.route('/trackings/<id>', methods=['get', 'patch', 'delete'])
 def transmit(id=None):
 
     base_url = app_host + '/trackings' + ('' if not id else '/{}'.format(id))
@@ -65,3 +64,11 @@ def transmit(id=None):
         resp_headers = _get_resp_headers(resp)
 
         return Response(resp, status=resp.status_code, headers=resp_headers)
+
+    elif request.method.lower() == 'delete':
+        resp = getattr(requests, request.method.lower())(url=url, headers=headers)
+
+        resp_headers = _get_resp_headers(resp)
+
+        return Response(resp, status=resp.status_code, headers=resp_headers)
+
