@@ -53,13 +53,13 @@ class ParseTokenConfig(object):
                 self.current_tag = reduce(lambda x, y: x + '||' + y, self.current_tag.split('||')[: -1])
 
 
-    class HostSaxHandler(object):
+    class SysSaxHandler(object):
         def __init__(self):
-            self.host = ''
+            self.sys = {}
 
         def start_element(self, name, attrs):
             if name == 'transmit':
-                self.host = attrs.get('host', '')
+                self.sys.update({k:v for k, v in attrs.items()})
 
         def char_data(self, text):
             pass
@@ -89,7 +89,7 @@ class ParseTokenConfig(object):
 
 
     def get_transmit_config(self):
-        self.handler = self.HostSaxHandler()
+        self.handler = self.SysSaxHandler()
         self.parser = ParserCreate()
         self.parser.returns_unicode = True
         self.parser.StartElementHandler = self.handler.start_element
@@ -100,7 +100,7 @@ class ParseTokenConfig(object):
         self.parser.ParseFile(self.f)
         self.f.close()
 
-        return self.handler.host
+        return self.handler.sys
 
 
     def __del__(self):

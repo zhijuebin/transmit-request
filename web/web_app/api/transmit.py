@@ -23,7 +23,8 @@ def _get_resp_headers(resp):
 @api.route('/trackings/<id>', methods=['get', 'patch', 'delete'])
 def transmit(id=None):
     hc = ParseTokenConfig()
-    app_host = hc.get_transmit_config()
+    sys = hc.get_transmit_config()
+    app_host = sys.get('host')
     del hc
     app_host = app_host[:-1] if app_host.endswith('/') else app_host
 
@@ -81,7 +82,8 @@ def transmit(id=None):
 @api.route('/location_events', methods=['post'])
 def location_events(id=None):
     hc = ParseTokenConfig()
-    app_host = hc.get_transmit_config()
+    sys = hc.get_transmit_config()
+    app_host = sys.get('host')
     del hc
     app_host = app_host[:-1] if app_host.endswith('/') else app_host
 
