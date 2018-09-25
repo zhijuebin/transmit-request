@@ -20,7 +20,6 @@ class DevelopmentConfig(Config):
     # Backend Name
     BACKEND_NAME = 'transmit_request_dev'
     TRANSMIT_HOST = 'xxx'
-    AUTHENTICATION_TOKEN_DICT = '{"xxx": "xxx||xxx"}'
 
 
 

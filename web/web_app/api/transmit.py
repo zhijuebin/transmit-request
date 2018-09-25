@@ -5,9 +5,8 @@ from web_app.api import api
 from flask import request, Response
 import requests
 from web_app import utils as _
+from web_app.utils import ParseTokenConfig
 
-
-app_token_dict = json.loads(app.config.get('AUTHENTICATION_TOKEN_DICT'))
 
 app_host = app.config.get('TRANSMIT_HOST')
 app_host = app_host[:-1] if app_host.endswith('/') else app_host
@@ -31,11 +30,17 @@ def transmit(id=None):
 
     base_url = app_host + '/trackings' + ('' if not id else '/{}'.format(id))
 
-    get_token = app_token_dict.get(request.args.get('token', None), None)
-    if not get_token:
+    pc = ParseTokenConfig()
+    token_config = pc.get_config()
+    del pc
+
+    get_config = token_config.get(request.args.get('token', None), None)
+    if not get_config:
         return _.error_respond(msg='Token not right', http_code=403)
-    token = get_token.split('||')[0]
-    broker_id = int(get_token.split('||')[1])
+    token = get_config.get('x-auth-token')
+    broker_id = int(get_config.get('broker_id'))
+    client = get_config.get('client')
+    Installation_ID = get_config.get('Installation-ID')
 
     if [k+'='+v for k, v in request.args.items() if k != 'token']:
         url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
@@ -43,7 +48,7 @@ def transmit(id=None):
         url = base_url
 
     headers = dict(request.headers)
-    headers.update({'Host': app_host, 'x-auth-token': token})
+    headers.update({'Host': app_host, 'x-auth-token': token, 'client': client, 'Installation-ID': Installation_ID})
     headers.pop('Host')
 
 
@@ -84,10 +89,16 @@ def location_events(id=None):
 
     base_url = app_host + '/location_events' + ('' if not id else '/{}'.format(id))
 
-    get_token = app_token_dict.get(request.args.get('token', None), None)
-    if not get_token:
+    pc = ParseTokenConfig()
+    token_config = pc.get_config()
+    del pc
+
+    get_config = token_config.get(request.args.get('token', None), None)
+    if not get_config:
         return _.error_respond(msg='Token not right', http_code=403)
-    token = get_token.split('||')[0]
+    token = get_config.get('x-auth-token')
+    client = get_config.get('client')
+    Installation_ID = get_config.get('Installation-ID')
 
     if [k+'='+v for k, v in request.args.items() if k != 'token']:
         url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
@@ -95,7 +106,7 @@ def location_events(id=None):
         url = base_url
 
     headers = dict(request.headers)
-    headers.update({'Host': app_host, 'x-auth-token': token})
+    headers.update({'Host': app_host, 'x-auth-token': token, 'client': client, 'Installation-ID': Installation_ID})
     headers.pop('Host')
 
 
