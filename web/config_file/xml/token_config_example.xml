@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<users>
-	<user token="xxx">
-		<x-auth-token>xxx</x-auth-token>
-		<Installation-ID>xxx</Installation-ID>
-		<client>xxx/xxx</client>
-        <broker_id>00000</broker_id>
-	</user>
-</users>
+<config>
+    <transmit host="xxx" />
+    <users>
+        <user token="xxx">
+            <x-auth-token>xxx</x-auth-token>
+            <Installation-ID>xxx</Installation-ID>
+            <client>xxx/x.x.x</client>
+            <broker_id>000000</broker_id>
+        </user>
+    </users>
+</config>

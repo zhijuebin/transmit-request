@@ -51,21 +51,55 @@ class ParseTokenConfig(object):
             if name in self.user_child_tags:
                 self.current_tag = reduce(lambda x, y: x + '||' + y, self.current_tag.split('||')[: -1])
 
+
+    class HostSaxHandler(object):
+        def __init__(self):
+            self.host = ''
+
+        def start_element(self, name, attrs):
+            if name == 'transmit':
+                self.host = attrs.get('host', '')
+
+        def char_data(self, text):
+            pass
+
+        def end_element(self, name):
+            pass
+
+
     def __init__(self):
+        self.xml_path = reduce(lambda x,y: os.path.join(x, y), ['config_file', 'xml', 'token_config.xml'])
+        self.f = None
+
+
+    def get_header_config(self):
         self.handler = self.HeadersSaxHandler()
         self.parser = ParserCreate()
         self.parser.returns_unicode = True
         self.parser.StartElementHandler = self.handler.start_element
         self.parser.EndElementHandler = self.handler.end_element
         self.parser.CharacterDataHandler = self.handler.char_data
-        self.xml_path = reduce(lambda x,y: os.path.join(x, y), ['config_file', 'xml', 'token_config.xml'])
-        self.f = None
 
-
-    def get_config(self):
         self.f = open(self.xml_path, 'r')
         self.parser.ParseFile(self.f)
+        self.f.close()
+
         return self.handler.users
+
+
+    def get_transmit_config(self):
+        self.handler = self.HostSaxHandler()
+        self.parser = ParserCreate()
+        self.parser.returns_unicode = True
+        self.parser.StartElementHandler = self.handler.start_element
+        self.parser.EndElementHandler = self.handler.end_element
+        self.parser.CharacterDataHandler = self.handler.char_data
+
+        self.f = open(self.xml_path, 'r')
+        self.parser.ParseFile(self.f)
+        self.f.close()
+
+        return self.handler.host
 
 
     def __del__(self):

@@ -8,10 +8,6 @@ from web_app import utils as _
 from web_app.utils import ParseTokenConfig
 
 
-app_host = app.config.get('TRANSMIT_HOST')
-app_host = app_host[:-1] if app_host.endswith('/') else app_host
-
-
 
 def _get_resp_headers(resp):
     resp_headers = []
@@ -27,12 +23,16 @@ def _get_resp_headers(resp):
 @api.route('/trackings', methods=['get', 'post'])
 @api.route('/trackings/<id>', methods=['get', 'patch', 'delete'])
 def transmit(id=None):
+    hc = ParseTokenConfig()
+    app_host = hc.get_transmit_config()
+    del hc
+    app_host = app_host[:-1] if app_host.endswith('/') else app_host
 
     base_url = app_host + '/trackings' + ('' if not id else '/{}'.format(id))
 
-    pc = ParseTokenConfig()
-    token_config = pc.get_config()
-    del pc
+    uc = ParseTokenConfig()
+    token_config = uc.get_header_config()
+    del uc
 
     get_config = token_config.get(request.args.get('token', None), None)
     if not get_config:
@@ -86,12 +86,16 @@ def transmit(id=None):
 
 @api.route('/location_events', methods=['post'])
 def location_events(id=None):
+    hc = ParseTokenConfig()
+    app_host = hc.get_transmit_config()
+    del hc
+    app_host = app_host[:-1] if app_host.endswith('/') else app_host
 
     base_url = app_host + '/location_events' + ('' if not id else '/{}'.format(id))
 
-    pc = ParseTokenConfig()
-    token_config = pc.get_config()
-    del pc
+    uc = ParseTokenConfig()
+    token_config = uc.get_header_config()
+    del uc
 
     get_config = token_config.get(request.args.get('token', None), None)
     if not get_config:
