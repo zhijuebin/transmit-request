@@ -4,7 +4,7 @@ from web_app import logger
 from flask import request, Response
 import requests
 from web_app import utils as _
-from web_app.utils import ParseTokenConfig
+from web_app.utils import ParseTokenConfig, signature_authentication
 
 
 
@@ -21,6 +21,7 @@ def _get_resp_headers(resp):
 
 @api.route('/trackings', methods=['get', 'post'])
 @api.route('/trackings/<id>', methods=['get', 'patch', 'delete'])
+@signature_authentication(sub_url='/trackings', request=request)
 def transmit(id=None):
     hc = ParseTokenConfig()
     sys = hc.get_transmit_config()
@@ -42,8 +43,8 @@ def transmit(id=None):
     client = get_config.get('client')
     Installation_ID = get_config.get('Installation-ID')
 
-    if [k+'='+v for k, v in request.args.items() if k != 'token']:
-        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
+    if [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp']:
+        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp'])
     else:
         url = base_url
 
@@ -88,6 +89,7 @@ def transmit(id=None):
 
 
 @api.route('/location_events', methods=['post'])
+@signature_authentication(sub_url='/location_events', request=request)
 def location_events(id=None):
     hc = ParseTokenConfig()
     sys = hc.get_transmit_config()
@@ -108,8 +110,8 @@ def location_events(id=None):
     client = get_config.get('client')
     Installation_ID = get_config.get('Installation-ID')
 
-    if [k+'='+v for k, v in request.args.items() if k != 'token']:
-        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token'])
+    if [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp']:
+        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp'])
     else:
         url = base_url
 

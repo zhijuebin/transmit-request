@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <transmit host="xxx" />
+    <transmit host="xxx" expired_seconds="xxxs" md5_salt="xxx" />
     <users>
         <user token="xxx">
             <x-auth-token>xxx</x-auth-token>

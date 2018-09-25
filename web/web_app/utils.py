@@ -138,3 +138,61 @@ def get_logger(name):
 
     return logger
 
+
+import copy
+import hashlib
+import functools
+import datetime
+
+def signature_authentication(sub_url, request):
+    def decorator(fun):
+        @functools.wraps(fun)
+        def wrapper(*args, **kw):
+            hc = ParseTokenConfig()
+            sys = hc.get_transmit_config()
+            expired_seconds = int(sys.get('expired_seconds'))
+            md5_salt = sys.get('md5_salt')
+            del hc
+
+            re_args = {k: v for k, v in request.args.items()}
+            now = datetime.datetime.now()
+            if ('timestamp' not in re_args) or ('sign' not in re_args):
+                return error_respond(msg='no timestamp or sign in your request url', http_code=400)
+            sign = re_args['sign']
+            args_timestamp = int(re_args['timestamp'])
+            args_time_b = datetime.datetime.fromtimestamp(args_timestamp)
+            args_time_e = args_time_b + datetime.timedelta(seconds=expired_seconds)
+            if not (now >= args_time_b and now <= args_time_e):
+                return error_respond(msg='expired request', http_code=403)
+
+            # url
+            url = request.url
+            index_b = url.find(sub_url)
+            index_e = url.find('?')
+            base_auth_url = url[index_b: index_e]
+
+            # args one
+            if [k + '=' + v for k, v in re_args.items() if k != 'sign']:
+                args_one_url = '?' + reduce(lambda x, y: x + '&' + y, sorted([k + '=' + v for k, v in re_args.items() if k != 'sign'], lambda x, y: cmp(x, y)))
+            else:
+                args_one_url = ''
+
+            # args two
+            json_data = copy.deepcopy(request.get_json())
+            if json_data and [k + '=' + v for k, v in json_data.items()]:
+                args_two_url = reduce(lambda x, y: x + '&' + y, sorted([k + '=' + v for k, v in json_data.items()], lambda x, y: cmp(x, y)))
+            else:
+                args_two_url = ''
+
+            my_cal_sign = base_auth_url + args_one_url + args_two_url
+            md5 = hashlib.md5()
+            md5.update(my_cal_sign)
+            md5.update(md5_salt)
+
+            if md5.hexdigest().upper() != sign:
+                return error_respond(msg='invalid sign', http_code=403)
+
+            return fun(*args, **kw)
+
+        return wrapper
+    return decorator
