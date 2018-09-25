@@ -51,32 +51,40 @@ def transmit(id=None):
     headers.update({'Host': app_host, 'x-auth-token': token, 'client': client, 'Installation-ID': Installation_ID})
     headers.pop('Host')
 
-    if request.method.lower() == 'get':
-        resp = getattr(requests, request.method.lower())(url=url, headers=headers)
+    exc = None
 
-        resp_headers = _get_resp_headers(resp)
+    try:
+        if request.method.lower() == 'get':
+            resp = getattr(requests, request.method.lower())(url=url, headers=headers)
 
-    elif request.method.lower() == 'post':
-        json_data = request.get_json()
-        json_data.update({'broker_id': broker_id})
-        resp = getattr(requests, request.method.lower())(url=url, json=json_data, headers=headers)
+            resp_headers = _get_resp_headers(resp)
 
-        resp_headers = _get_resp_headers(resp)
+        elif request.method.lower() == 'post':
+            json_data = request.get_json()
+            json_data.update({'broker_id': broker_id})
+            resp = getattr(requests, request.method.lower())(url=url, json=json_data, headers=headers)
 
-    elif request.method.lower() == 'patch':
-        resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
+            resp_headers = _get_resp_headers(resp)
 
-        resp_headers = _get_resp_headers(resp)
+        elif request.method.lower() == 'patch':
+            resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
 
-    elif request.method.lower() == 'delete':
-        resp = getattr(requests, request.method.lower())(url=url, headers=headers)
+            resp_headers = _get_resp_headers(resp)
 
-        resp_headers = _get_resp_headers(resp)
+        elif request.method.lower() == 'delete':
+            resp = getattr(requests, request.method.lower())(url=url, headers=headers)
 
-    logger.debug('Method: {}| Headers: {}| Url: {}| Data: {}| Http code: {}'.format(request.method, request.headers, request.url,
-                                                                     request.get_json(), resp.status_code))
-    return Response(resp, status=resp.status_code, headers=resp_headers)
+            resp_headers = _get_resp_headers(resp)
+    except Exception as e:
+        exc = e
 
+    logger.debug('Method: {}| Headers: {}| Url: {}| Data: {}| Http code: {}| Exception: {}'.format(request.method, request.headers, request.url,
+                                                                     request.get_json(), (exc.http_status or 500 if hasattr(exc, 'http_status') else None) if exc else resp.status_code, str(exc)))
+
+    return Response(resp if not exc else str(exc),
+                    status=resp.status_code if not exc else (exc.http_status or 500 if hasattr(
+                        exc,
+                        'http_status') else 500), headers=resp_headers if not exc else None)
 
 
 @api.route('/location_events', methods=['post'])
@@ -109,13 +117,24 @@ def location_events(id=None):
     headers.update({'Host': app_host, 'x-auth-token': token, 'client': client, 'Installation-ID': Installation_ID})
     headers.pop('Host')
 
+    exc = None
 
-    if request.method.lower() == 'post':
-        resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
+    try:
+        if request.method.lower() == 'post':
+            resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
 
-        resp_headers = _get_resp_headers(resp)
+            resp_headers = _get_resp_headers(resp)
+    except Exception as e:
+        exc = e
 
-    logger.debug(
-        'Method: {}| Headers: {}| Url: {}| Data: {}| Http code: {}'.format(request.method, request.headers, request.url,
-                                                                           request.get_json(), resp.status_code))
-    return Response(resp, status=resp.status_code, headers=resp_headers)
+    logger.debug('Method: {}| Headers: {}| Url: {}| Data: {}| Http code: {}| Exception: {}'.format(request.method,
+                                                                                                   request.headers,
+                                                                                                   request.url,
+                                                                                                   request.get_json(), (
+                                                                                                   exc.http_status or 500 if hasattr(
+                                                                                                       exc,
+                                                                                                       'http_status') else None) if exc else resp.status_code,
+                                                                                                   str(exc)))
+    return Response(resp if not exc else str(exc), status=resp.status_code if not exc else (exc.http_status or 500 if hasattr(
+                                                                                                       exc,
+                                                                                                       'http_status') else 500), headers=resp_headers if not exc else None)
