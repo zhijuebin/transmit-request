@@ -1,4 +1,5 @@
 # coding=utf-8
+from web_app import app
 from flask import jsonify
 from werkzeug.exceptions import HTTPException
 
@@ -105,3 +106,35 @@ class ParseTokenConfig(object):
     def __del__(self):
         if not self.f.closed:
             self.f.close()
+
+
+import logging
+from logging import handlers
+
+_HDLR = None
+
+def _hdlr():
+    global _HDLR
+    if _HDLR is None:
+        hdlr = handlers.TimedRotatingFileHandler('logs/main.log', when='D', interval=1)
+        formatter = logging.Formatter('%(asctime)s||%(levelname)s||%(message)s')
+        hdlr.setFormatter(formatter)
+        _HDLR = hdlr
+    return _HDLR
+
+
+def get_logger(name):
+    logger = logging.getLogger(name)
+    if app.config.get('LOGGER_DEBUG_MODE'):
+        logging.basicConfig(
+            level=app.config.get('LOGGER_DEBUG_LEVEL'), format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s'
+        )
+
+    else:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        logger.setLevel(app.config.get('LOGGER_DEBUG_LEVEL'))
+        logger.addHandler(_hdlr())
+
+    return logger
+

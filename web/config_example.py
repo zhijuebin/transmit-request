@@ -19,6 +19,7 @@ class DevelopmentConfig(Config):
     CSRF_ENABLED = True
     # Backend Name
     BACKEND_NAME = 'transmit_request_dev'
+    LOGGER_DEBUG_LEVEL = 10
 
 
 

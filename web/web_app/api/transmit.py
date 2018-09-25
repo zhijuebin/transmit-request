@@ -1,7 +1,6 @@
 # coding=utf-8
-import json
-from web_app import app
 from web_app.api import api
+from web_app import logger
 from flask import request, Response
 import requests
 from web_app import utils as _
@@ -51,13 +50,10 @@ def transmit(id=None):
     headers.update({'Host': app_host, 'x-auth-token': token, 'client': client, 'Installation-ID': Installation_ID})
     headers.pop('Host')
 
-
     if request.method.lower() == 'get':
         resp = getattr(requests, request.method.lower())(url=url, headers=headers)
 
         resp_headers = _get_resp_headers(resp)
-
-        return Response(resp, status=resp.status_code, headers=resp_headers)
 
     elif request.method.lower() == 'post':
         json_data = request.get_json()
@@ -66,21 +62,19 @@ def transmit(id=None):
 
         resp_headers = _get_resp_headers(resp)
 
-        return Response(resp, status=resp.status_code, headers=resp_headers)
-
     elif request.method.lower() == 'patch':
         resp = getattr(requests, request.method.lower())(url=url, json=request.get_json(), headers=headers)
 
         resp_headers = _get_resp_headers(resp)
-
-        return Response(resp, status=resp.status_code, headers=resp_headers)
 
     elif request.method.lower() == 'delete':
         resp = getattr(requests, request.method.lower())(url=url, headers=headers)
 
         resp_headers = _get_resp_headers(resp)
 
-        return Response(resp, status=resp.status_code, headers=resp_headers)
+    logger.debug('Method: {}| Headers: {}| Url: {}| Data: {}| Http code: {}'.format(request.method, request.headers, request.url,
+                                                                     request.get_json(), resp.status_code))
+    return Response(resp, status=resp.status_code, headers=resp_headers)
 
 
 
@@ -119,4 +113,7 @@ def location_events(id=None):
 
         resp_headers = _get_resp_headers(resp)
 
-        return Response(resp, status=resp.status_code, headers=resp_headers)
+    logger.debug(
+        'Method: {}| Headers: {}| Url: {}| Data: {}| Http code: {}'.format(request.method, request.headers, request.url,
+                                                                           request.get_json(), resp.status_code))
+    return Response(resp, status=resp.status_code, headers=resp_headers)
