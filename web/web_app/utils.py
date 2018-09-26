@@ -179,8 +179,8 @@ def signature_authentication(sub_url, request):
 
             # args two
             json_data = copy.deepcopy(request.get_json())
-            if json_data and [k + '=' + v for k, v in json_data.items()]:
-                args_two_url = reduce(lambda x, y: x + '&' + y, sorted([k + '=' + v for k, v in json_data.items()], lambda x, y: cmp(x, y)))
+            if json_data and len(json_data):
+                args_two_url = reduce(lambda x, y: x + '&' + y, sorted([k for k in json_data.keys()], lambda x, y: cmp(x, y)))
             else:
                 args_two_url = ''
 
