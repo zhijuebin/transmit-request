@@ -159,10 +159,16 @@ def signature_authentication(sub_url, request):
             if ('timestamp' not in re_args) or ('sign' not in re_args):
                 return error_respond(msg='no timestamp or sign in your request url', http_code=400)
             sign = re_args['sign']
-            args_timestamp = int(re_args['timestamp'])
-            args_time_b = datetime.datetime.fromtimestamp(args_timestamp)
-            args_time_e = args_time_b + datetime.timedelta(seconds=expired_seconds)
-            if not (now >= args_time_b and now <= args_time_e):
+
+            try:
+                args_timestamp = int(re_args['timestamp'])
+                args_time = datetime.datetime.fromtimestamp(args_timestamp)
+            except:
+                return error_respond(msg='error timestamp', http_code=403)
+
+            args_time_b = now + datetime.timedelta(seconds=-expired_seconds)
+            args_time_e = now + datetime.timedelta(seconds=expired_seconds)
+            if not (args_time >= args_time_b and args_time <= args_time_e):
                 return error_respond(msg='expired request', http_code=403)
 
             # url
