@@ -199,8 +199,8 @@ def signature_authentication(sub_url, request):
 
             my_cal_sign = base_auth_url + args_one_url + args_two_url
             sha1 = hashlib.sha1()
-            sha1.update(my_cal_sign)
-            sha1.update(secretKey)
+            sha1.update(my_cal_sign.encode('utf-8'))
+            sha1.update(secretKey.encode('utf-8'))
 
             if sha1.hexdigest().upper() != sign:
                 return error_respond(msg='invalid signature', http_code=403)
