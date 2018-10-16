@@ -35,16 +35,16 @@ def transmit(id=None):
     token_config = uc.get_header_config()
     del uc
 
-    get_config = token_config.get(request.args.get('token', None), None)
+    get_config = token_config.get(request.args.get('accessKey', None), None)
     if not get_config:
-        return _.error_respond(msg='Token not right', http_code=403)
+        return _.error_respond(msg='accessKey not right', http_code=403)
     token = get_config.get('x-auth-token')
     broker_id = int(get_config.get('broker_id'))
     client = get_config.get('client')
     Installation_ID = get_config.get('Installation-ID')
 
-    if [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp']:
-        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp'])
+    if [k+'='+v for k, v in request.args.items() if k != 'accessKey' and k != 'signature' and k != 'timestamp']:
+        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'accessKey' and k != 'signature' and k != 'timestamp'])
     else:
         url = base_url
 
@@ -103,15 +103,15 @@ def location_events(id=None):
     token_config = uc.get_header_config()
     del uc
 
-    get_config = token_config.get(request.args.get('token', None), None)
+    get_config = token_config.get(request.args.get('accessKey', None), None)
     if not get_config:
-        return _.error_respond(msg='Token not right', http_code=403)
+        return _.error_respond(msg='accessKey not right', http_code=403)
     token = get_config.get('x-auth-token')
     client = get_config.get('client')
     Installation_ID = get_config.get('Installation-ID')
 
-    if [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp']:
-        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'token' and k != 'sign' and k != 'timestamp'])
+    if [k+'='+v for k, v in request.args.items() if k != 'accessKey' and k != 'signature' and k != 'timestamp']:
+        url = base_url + '?' + reduce(lambda x,y:  x+'&'+y, [k+'='+v for k, v in request.args.items() if k != 'accessKey' and k != 'signature' and k != 'timestamp'])
     else:
         url = base_url
 

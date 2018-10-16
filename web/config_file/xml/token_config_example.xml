@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <transmit host="xxx" expired_seconds="xxxs" md5_salt="xxx" />
+    <transmit host="xxx" expired_seconds="xxxs" secretKey="xxx" />
     <users>
         <user token="xxx">
             <x-auth-token>xxx</x-auth-token>
             <Installation-ID>xxx</Installation-ID>
             <client>xxx/x.x.x</client>
             <broker_id>000000</broker_id>
+            <secretKey>xxx</secretKey>>
         </user>
     </users>
 </config>

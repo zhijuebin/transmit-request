@@ -31,7 +31,7 @@ class ParseTokenConfig(object):
             self.users = {}
             self.current_user_token = ''
             self.current_tag = ''
-            self.user_child_tags = ['x-auth-token', 'Installation-ID', 'client', 'broker_id']
+            self.user_child_tags = ['x-auth-token', 'Installation-ID', 'client', 'broker_id', 'secretKey']
 
         def start_element(self, name, attrs):
             if name == 'user':
@@ -139,7 +139,6 @@ def get_logger(name):
     return logger
 
 
-import copy
 import hashlib
 import functools
 import datetime
@@ -151,14 +150,26 @@ def signature_authentication(sub_url, request):
             hc = ParseTokenConfig()
             sys = hc.get_transmit_config()
             expired_seconds = int(sys.get('expired_seconds'))
-            md5_salt = sys.get('md5_salt')
+            secretKey = sys.get('secretKey')
             del hc
+
+            uc = ParseTokenConfig()
+            token_config = uc.get_header_config()
+            del uc
+
+            get_config = token_config.get(request.args.get('accessKey', None), None)
+            if not get_config:
+                return _.error_respond(msg='accessKey not right', http_code=403)
+
+            secretKey_g = get_config.get('secretKey', None)
+            if secretKey_g:
+                secretKey = secretKey_g
 
             re_args = {k: v for k, v in request.args.items()}
             now = datetime.datetime.now()
-            if ('timestamp' not in re_args) or ('sign' not in re_args):
-                return error_respond(msg='no timestamp or sign in your request url', http_code=400)
-            sign = re_args['sign']
+            if ('timestamp' not in re_args) or ('signature' not in re_args):
+                return error_respond(msg='no timestamp or signature in your request url', http_code=400)
+            sign = re_args['signature']
 
             try:
                 args_timestamp = int(re_args['timestamp'])
@@ -178,25 +189,21 @@ def signature_authentication(sub_url, request):
             base_auth_url = url[index_b: index_e]
 
             # args one
-            if [k + '=' + v for k, v in re_args.items() if k != 'sign']:
-                args_one_url = '?' + reduce(lambda x, y: x + '&' + y, sorted([k + '=' + v for k, v in re_args.items() if k != 'sign'], lambda x, y: cmp(x, y)))
+            if [k + '=' + v for k, v in re_args.items() if k != 'signature']:
+                args_one_url = '?' + reduce(lambda x, y: x + '&' + y, sorted([k + '=' + v for k, v in re_args.items() if k != 'signature'], lambda x, y: cmp(x, y)))
             else:
                 args_one_url = ''
 
             # args two
-            json_data = copy.deepcopy(request.get_json())
-            if json_data and len(json_data):
-                args_two_url = reduce(lambda x, y: x + '&' + y, sorted([k for k in json_data.keys()], lambda x, y: cmp(x, y)))
-            else:
-                args_two_url = ''
+            args_two_url = request.data
 
             my_cal_sign = base_auth_url + args_one_url + args_two_url
-            md5 = hashlib.md5()
-            md5.update(my_cal_sign)
-            md5.update(md5_salt)
+            sha1 = hashlib.sha1()
+            sha1.update(my_cal_sign)
+            sha1.update(secretKey)
 
-            if md5.hexdigest().upper() != sign:
-                return error_respond(msg='invalid sign', http_code=403)
+            if sha1.hexdigest().upper() != sign:
+                return error_respond(msg='invalid signature', http_code=403)
 
             return fun(*args, **kw)
 
