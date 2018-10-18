@@ -47,9 +47,9 @@ Step3: secretKey=test
        S3 = 'test'
 
 The string used for encryption:
-       S = S1 + S2 + S3
+       S = (S1 + S2 + S3).encode('utf-8')
 
-       signature = upperCase(sha1(S))
+       signature = upperCase(sha1(S)) = 'D98EFC7F313C977DAF8EC24591CA0ECD70AE964D'
 
 
 Example2:
@@ -67,9 +67,9 @@ Step3: secretKey=test
        S3 = 'test'
 
 The string used for encryption:
-       S = S1 + S2 + S3
+       S = (S1 + S2 + S3).encode('utf-8')
 
-       signature = upperCase(sha1(S))
+       signature = upperCase(sha1(S)) = 'B50677D187FD406B3CCA337BEF6B5F97686AE1B4'
 ```
 
 
