@@ -78,7 +78,7 @@ The string used for encryption:
 ### Request
 
 ```bash
-curl -X GET /trackings?broker_id=12345&timestamp=xxx&accessKey=xxx&signature=xxx
+curl -X GET /trackings?timestamp=xxx&accessKey=xxx&signature=xxx
 curl -X GET /trackings?carrier_id=12345&timestamp=xxx&accessKey=xxx&signature=xxx
 ```
 

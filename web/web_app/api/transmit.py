@@ -56,6 +56,9 @@ def transmit(id=None):
 
     try:
         if request.method.lower() == 'get':
+            args_key_set = set([k for k in request.args.keys() if k != 'accessKey' and k != 'signature' and k != 'timestamp'])
+            if (id == None) and ('broker_id' not in args_key_set) and ('carrier_id' not in args_key_set):
+                url = url + '?' + 'broker_id={}'.format(broker_id) if '?' not in url else url + '&' + 'broker_id={}'.format(broker_id)
             resp = getattr(requests, request.method.lower())(url=url, headers=headers)
 
             resp_headers = _get_resp_headers(resp)
